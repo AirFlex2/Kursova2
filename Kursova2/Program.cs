@@ -16,24 +16,28 @@ namespace Kursova2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // 1. Dependency Injection (Внедрение зависимостей) - "Сборка" приложения
+            // 1. Dependency Injection (Впровадження залежностей)
             string connString = AppConfig.Instance.ConnectionString;
             IDatabaseHelper dbHelper = new SqlDatabaseHelper(connString);
 
-            // Создаем сервисы, передавая им общего помощника БД
+            // Створюємо мікросервіси
             IAuthService auth = new AuthMicroservice(dbHelper);
             IDataService data = new DataMicroservice(dbHelper);
             IAnalyticsService analytics = new AnalyticsMicroservice(dbHelper);
             IReservationService reservation = new ReservationMicroservice(dbHelper);
 
-            // Создаем шлюз, передавая ему готовые интерфейсы
-            IApiGateway apiGateway = new ApiGateway(auth, data, analytics, reservation);
+            // Створюємо новий сервіс позик та штрафів
+            ILoanService loan = new LoanMicroservice(dbHelper);
 
-            // 2. Запуск UI
+            // Збираємо шлюз (Facade), додаючи новий сервіс
+            IApiGateway apiGateway = new ApiGateway(auth, data, analytics, reservation, loan);
+
+            // 2. Запуск інтерфейсу авторизації
             LoginForm loginForm = new LoginForm(apiGateway);
 
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
+                // Запуск відповідної форми залежно від ролі
                 Form mainForm = loginForm.IsAdmin
                     ? (Form)new AdminForm(apiGateway)
                     : (Form)new ClientForm(apiGateway);

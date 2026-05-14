@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Kursova2.Models;
+using Kursova2.Services.Strategies;
+using System;
+using System.Collections.Generic;
 using System.Data;
-using Kursova2.Models;
 
 namespace Kursova2.Services.Microservices
 {
@@ -42,4 +44,11 @@ namespace Kursova2.Services.Microservices
         bool CheckAvailability(int bookId);
         List<AuthorStatistic> GetAuthorStatistics();
     }
+    public interface ILoanService
+    {
+        void SetFineStrategy(IFineStrategy strategy);
+        decimal CalculateReturnFine(DateTime expectedReturn, DateTime actualReturn);
+        string ReturnBook(int loanId); // Метод для повернення книги
+    }
 }
+
