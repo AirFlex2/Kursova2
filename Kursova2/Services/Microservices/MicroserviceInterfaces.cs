@@ -48,7 +48,7 @@ namespace Kursova2.Services.Microservices
     {
         void SetFineStrategy(IFineStrategy strategy);
         decimal CalculateReturnFine(DateTime expectedReturn, DateTime actualReturn);
-        string ReturnBook(int loanId); // Метод для повернення книги
+        string ReturnBook(int loanId);
     }
 }
 

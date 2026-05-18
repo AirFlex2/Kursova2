@@ -7,7 +7,6 @@ namespace Kursova2.UI
 {
     public partial class BaseLibraryForm : Form
     {
-        // Заменено на ИНТЕРФЕЙС
         protected readonly IApiGateway _apiGateway;
 
         protected DataTable _currentTable;
@@ -17,8 +16,6 @@ namespace Kursova2.UI
         protected DataGridView dataGridView;
         protected TextBox textBoxSearch;
         protected Button buttonSearch;
-
-        // Конструктор теперь принимает абстракцию IApiGateway
         public BaseLibraryForm(IApiGateway apiGateway)
         {
             _apiGateway = apiGateway;

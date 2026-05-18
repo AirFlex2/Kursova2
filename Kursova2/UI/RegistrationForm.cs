@@ -7,11 +7,11 @@ namespace Kursova2.UI
 {
     public class RegistrationForm : Form
     {
-        private readonly IApiGateway _apiGateway; // Заменено на интерфейс
+        private readonly IApiGateway _apiGateway;
         private TextBox txtName, txtEmail, txtAddress, txtHomePhone, txtWorkPhone;
         private Button btnRegister;
 
-        public RegistrationForm(IApiGateway apiGateway) // Заменено на интерфейс
+        public RegistrationForm(IApiGateway apiGateway)
         {
             _apiGateway = apiGateway;
             InitializeComponent();

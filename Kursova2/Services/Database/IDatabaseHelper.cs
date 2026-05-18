@@ -69,7 +69,7 @@ namespace Kursova2.Services.Database
             }
         }
 
-        // Элегантная обертка для выполнения сложных операций в транзакции
+        //обертка для выполнения сложных операций в транзакции
         public void ExecuteInTransaction(Action<SqlCommand> transactionalAction)
         {
             using (var connection = new SqlConnection(_connectionString))

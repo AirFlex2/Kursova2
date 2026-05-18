@@ -3,7 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Kursova2.Services;
-using Kursova2.Services.Strategies; // Додано для роботи з патерном Strategy
+using Kursova2.Services.Strategies;
 
 namespace Kursova2.UI
 {
@@ -12,8 +12,6 @@ namespace Kursova2.UI
         private Button btnSave, btnDelete;
         private Button btnGroup, btnRank, btnAuthors, btnFines;
         private Button btnChartGroup;
-
-        // Нові кнопки для логіки штрафів та повернення
         private Button btnAmnesty, btnNoAmnesty, btnReturnBook;
 
         public AdminForm(IApiGateway apiGateway) : base(apiGateway)
@@ -72,7 +70,7 @@ namespace Kursova2.UI
                 new ChartForm(data, "Розподіл книг за жанрами", "Genre", "Count").Show();
             };
 
-            // НОВІ КНОПКИ (Логіка штрафів)
+            // (Логіка штрафів)
 
             // 1. Увімкнення амністії (Strategy)
             btnAmnesty = new Button

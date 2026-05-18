@@ -6,8 +6,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Kursova2.UI
 {
-    // НОВА ФОРМА: Відповідає виключно за візуалізацію даних (Діаграми)
-    // Відповідає вимозі методички "виведення порівняльних діаграм"
+    // (Діаграми)
     public class ChartForm : Form
     {
         public ChartForm(DataTable data, string chartTitle, string xColumn, string yColumn)

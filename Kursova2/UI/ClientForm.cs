@@ -13,7 +13,6 @@ namespace Kursova2.UI
         private Button btnMyReservations, btnCancelReservation;
         private Button btnLibraryChart;
 
-        // Заменено на интерфейс
         public ClientForm(IApiGateway apiGateway) : base(apiGateway)
         {
             this.Text = "Бібліотека - Режим Читача";

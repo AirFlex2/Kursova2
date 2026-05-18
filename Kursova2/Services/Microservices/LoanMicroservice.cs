@@ -70,7 +70,6 @@ namespace Kursova2.Services.Microservices
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@lId", loanId);
                         cmd.Parameters.AddWithValue("@amt", fineAmount);
-                        // ВИПРАВЛЕНО: Передаємо об'єкт DateTime напряму! Без .ToString()
                         cmd.Parameters.AddWithValue("@date", DateTime.Now);
                         cmd.ExecuteNonQuery();
 
@@ -91,7 +90,6 @@ namespace Kursova2.Services.Microservices
                     cmd.CommandText = "UPDATE Loan SET LoanStatus = 'Закрито', RealDateOfReturn = @realDate WHERE LoanID = @lId";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@lId", loanId);
-                    // ВИПРАВЛЕНО: Так само передаємо DateTime напряму
                     cmd.Parameters.AddWithValue("@realDate", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 });

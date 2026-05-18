@@ -7,12 +7,12 @@ namespace Kursova2.UI
 {
     public partial class LoginForm : Form
     {
-        private readonly IApiGateway _apiGateway; // Заменено на интерфейс
+        private readonly IApiGateway _apiGateway;
         public bool IsAdmin { get; private set; }
         private TextBox textBoxPassword;
         private Button buttonLogin, buttonUserLogin;
 
-        public LoginForm(IApiGateway apiGateway) // Заменено на интерфейс
+        public LoginForm(IApiGateway apiGateway)
         {
             _apiGateway = apiGateway;
             InitializeComponent();

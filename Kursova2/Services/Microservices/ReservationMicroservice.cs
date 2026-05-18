@@ -20,7 +20,6 @@ namespace Kursova2.Services.Microservices
             {
                 string resultMessage = "";
 
-                // Транзакция теперь красиво упакована в лямбда-выражение
                 _dbHelper.ExecuteInTransaction(cmd =>
                 {
                     cmd.CommandText = "SELECT ReaderID FROM Reader WHERE ReaderName = @name";

@@ -8,7 +8,7 @@ namespace Kursova2.Services
         IDataService Data { get; }
         IAnalyticsService Analytics { get; }
         IReservationService Reservation { get; }
-        ILoanService Loan { get; } // Додано
+        ILoanService Loan { get; }
     }
 
     public class ApiGateway : IApiGateway
@@ -17,7 +17,7 @@ namespace Kursova2.Services
         public IDataService Data { get; }
         public IAnalyticsService Analytics { get; }
         public IReservationService Reservation { get; }
-        public ILoanService Loan { get; } // Додано
+        public ILoanService Loan { get; }
 
         public ApiGateway(IAuthService auth, IDataService data, IAnalyticsService analytics,
                           IReservationService reservation, ILoanService loan)
