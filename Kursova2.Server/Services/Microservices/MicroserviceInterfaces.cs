@@ -27,7 +27,8 @@ namespace Kursova2.Services.Microservices
         List<string> GetAvailableTables(bool isAdmin);
         DataTable GetTableData(string tableName);
         DataTable SearchInTable(string tableName, string columnName, string keyword);
-        void SaveChanges(string tableName, DataTable changes);
+        // Изменяем сигнатуру здесь:
+        void SaveChanges(string tableName, string xmlChanges);
     }
 
     public interface IReservationService

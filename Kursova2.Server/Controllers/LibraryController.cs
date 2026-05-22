@@ -38,9 +38,13 @@ namespace Kursova2.Server.Controllers
             => Ok(_data.SearchInTable(tableName, columnName, keyword));
 
         [HttpPost("table/save/{tableName}")]
-        public IActionResult SaveChanges(string tableName, [FromBody] DataTable changes)
+        public async System.Threading.Tasks.Task<IActionResult> SaveChanges(string tableName)
         {
-            _data.SaveChanges(tableName, changes);
+            using (var reader = new System.IO.StreamReader(Request.Body))
+            {
+                var xml = await reader.ReadToEndAsync();
+                _data.SaveChanges(tableName, xml);
+            }
             return Ok();
         }
 

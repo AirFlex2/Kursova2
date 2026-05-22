@@ -6,7 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 // Добавляем контроллеры и поддержку сериализации DataTable (NewtonsoftJson)
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    // Отключаем camelCase, чтобы названия колонок точно совпадали с базой данных (BookID, а не bookID)
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+});
 
 // Настраиваем подключение к БД (строка подключения теперь ТОЛЬКО на сервере)
 string connString = "Server=DESKTOP-FV08LVO\\SQLEXPRESS;Database=Library_kurs;Integrated Security=True;TrustServerCertificate=True;";

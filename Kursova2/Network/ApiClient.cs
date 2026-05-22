@@ -24,7 +24,13 @@ namespace Kursova2.Network
             var response = await _httpClient.GetAsync(_baseUrl + url);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<DataTable>(json);
+
+            var table = JsonConvert.DeserializeObject<DataTable>(json);
+
+            // ИЗМЕНЕНИЕ ЗДЕСЬ: Сбрасываем статус всех скачанных строк с "Added" на "Unchanged"
+            table?.AcceptChanges();
+
+            return table;
         }
 
         private async Task<string> PostAsync(string url, object payload)
@@ -57,9 +63,22 @@ namespace Kursova2.Network
         public async Task SaveChangesAsync(string tableName, DataTable changes)
         {
             if (changes == null) return;
-            var json = JsonConvert.SerializeObject(changes);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            await _httpClient.PostAsync($"{_baseUrl}table/save/{tableName}", content);
+
+            // Используем XML (DiffGram), чтобы сохранить состояния строк (Added, Modified, Deleted)
+            using (var sw = new System.IO.StringWriter())
+            {
+                changes.WriteXml(sw, XmlWriteMode.DiffGram);
+                var xmlContent = sw.ToString();
+                var content = new StringContent(xmlContent, System.Text.Encoding.UTF8, "application/xml");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}table/save/{tableName}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception(error);
+                }
+            }
         }
 
         // --- Auth ---

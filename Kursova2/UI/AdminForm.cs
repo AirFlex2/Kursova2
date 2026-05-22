@@ -30,11 +30,14 @@ namespace Kursova2.UI
                 {
                     try
                     {
+                        // ЯВНО УКАЗЫВАЕМ ИМЯ ТАБЛИЦЫ
+                        _currentTable.TableName = _currentTableName;
+
                         await _apiClient.SaveChangesAsync(_currentTableName, _currentTable.GetChanges());
                         _currentTable.AcceptChanges();
-                        MessageBox.Show("Зміни збережено на сервері!");
+                        MessageBox.Show("Успішно збережено!");
                     }
-                    catch (Exception ex) { MessageBox.Show("Помилка збереження: " + ex.Message); }
+                    catch (Exception ex) { MessageBox.Show("Помилка: " + ex.Message); }
                 }
             };
 
