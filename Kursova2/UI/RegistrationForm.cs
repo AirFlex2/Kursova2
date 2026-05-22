@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Kursova2.Network;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Kursova2.Services;
 
 namespace Kursova2.UI
 {
     public class RegistrationForm : Form
     {
-        private readonly IApiGateway _apiGateway;
+        private readonly ApiClient _apiClient;
         private TextBox txtName, txtEmail, txtAddress, txtHomePhone, txtWorkPhone;
         private Button btnRegister;
 
-        public RegistrationForm(IApiGateway apiGateway)
+        public RegistrationForm(ApiClient apiClient)
         {
-            _apiGateway = apiGateway;
+            _apiClient = apiClient;
             InitializeComponent();
         }
 
@@ -57,7 +57,7 @@ namespace Kursova2.UI
             Controls.Add(btnRegister);
         }
 
-        private void BtnRegister_Click(object sender, EventArgs e)
+        private async void BtnRegister_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
             {
@@ -67,11 +67,10 @@ namespace Kursova2.UI
 
             try
             {
-                if (_apiGateway.Auth.RegisterReader(txtName.Text, txtEmail.Text, txtAddress.Text, txtHomePhone.Text, txtWorkPhone.Text))
-                {
-                    MessageBox.Show("Вас успішно зареєстровано в системі!");
-                    this.Close();
-                }
+                // Сетевой асинхронный вызов
+                string msg = await _apiClient.RegisterReaderAsync(txtName.Text, txtEmail.Text, txtAddress.Text, txtHomePhone.Text, txtWorkPhone.Text);
+                MessageBox.Show(msg);
+                this.Close();
             }
             catch (Exception ex)
             {

@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Kursova2.Services;
 
 namespace Kursova2.UI
 {
     public partial class LoginForm : Form
     {
-        private readonly IApiGateway _apiGateway;
         public bool IsAdmin { get; private set; }
         private TextBox textBoxPassword;
         private Button buttonLogin, buttonUserLogin;
 
-        public LoginForm(IApiGateway apiGateway)
+        public LoginForm()
         {
-            _apiGateway = apiGateway;
             InitializeComponent();
         }
 

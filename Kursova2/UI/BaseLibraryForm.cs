@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Kursova2.Services;
+using Kursova2.Network;
 
 namespace Kursova2.UI
 {
     public partial class BaseLibraryForm : Form
     {
-        protected readonly IApiGateway _apiGateway;
+        protected readonly ApiClient _apiClient;
 
         protected DataTable _currentTable;
         protected string _currentTableName;
@@ -16,9 +17,10 @@ namespace Kursova2.UI
         protected DataGridView dataGridView;
         protected TextBox textBoxSearch;
         protected Button buttonSearch;
-        public BaseLibraryForm(IApiGateway apiGateway)
+
+        public BaseLibraryForm(ApiClient apiClient)
         {
-            _apiGateway = apiGateway;
+            _apiClient = apiClient;
             InitializeBaseComponents();
         }
 
@@ -28,16 +30,16 @@ namespace Kursova2.UI
             this.StartPosition = FormStartPosition.CenterScreen;
 
             comboBoxTables = new ComboBox { Location = new System.Drawing.Point(12, 12), Size = new System.Drawing.Size(200, 24), DropDownStyle = ComboBoxStyle.DropDownList };
-            comboBoxTables.SelectedIndexChanged += (s, e) =>
+            comboBoxTables.SelectedIndexChanged += async (s, e) =>
             {
                 if (comboBoxTables.SelectedItem != null)
-                    LoadData(comboBoxTables.SelectedItem.ToString());
+                    await LoadDataAsync(comboBoxTables.SelectedItem.ToString());
             };
 
             textBoxSearch = new TextBox { Location = new System.Drawing.Point(230, 12), Size = new System.Drawing.Size(200, 24) };
 
-            buttonSearch = new Button { Location = new System.Drawing.Point(440, 10), Size = new System.Drawing.Size(100, 28), Text = "Поиск" };
-            buttonSearch.Click += (s, e) => SearchData();
+            buttonSearch = new Button { Location = new System.Drawing.Point(440, 10), Size = new System.Drawing.Size(100, 28), Text = "Пошук" };
+            buttonSearch.Click += SearchData_Click;
 
             dataGridView = new DataGridView
             {
@@ -50,29 +52,33 @@ namespace Kursova2.UI
             Controls.AddRange(new Control[] { comboBoxTables, textBoxSearch, buttonSearch, dataGridView });
         }
 
-        protected void LoadTables(bool isAdmin)
+        protected async Task LoadTablesAsync(bool isAdmin)
         {
-            var tables = _apiGateway.Data.GetAvailableTables(isAdmin);
-            comboBoxTables.Items.Clear();
-            foreach (var table in tables) comboBoxTables.Items.Add(table);
-            if (comboBoxTables.Items.Count > 0) comboBoxTables.SelectedIndex = 0;
+            try
+            {
+                var tables = await _apiClient.GetAvailableTablesAsync(isAdmin);
+                comboBoxTables.Items.Clear();
+                foreach (var table in tables) comboBoxTables.Items.Add(table);
+                if (comboBoxTables.Items.Count > 0) comboBoxTables.SelectedIndex = 0;
+            }
+            catch (Exception ex) { MessageBox.Show("Помилка завантаження списку таблиць: " + ex.Message); }
         }
 
-        protected void LoadData(string tableName)
+        protected async Task LoadDataAsync(string tableName)
         {
             try
             {
                 _currentTableName = tableName;
-                _currentTable = _apiGateway.Data.GetTableData(tableName);
+                _currentTable = await _apiClient.GetTableDataAsync(tableName);
                 dataGridView.DataSource = _currentTable;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки: {ex.Message}");
+                MessageBox.Show($"Помилка завантаження даних: {ex.Message}");
             }
         }
 
-        private void SearchData()
+        private async void SearchData_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(_currentTableName) || string.IsNullOrWhiteSpace(textBoxSearch.Text)) return;
             try
@@ -81,11 +87,11 @@ namespace Kursova2.UI
                 if (_currentTableName == "Author") colName = "AuthorName";
                 if (_currentTableName == "Reader") colName = "ReaderName";
 
-                dataGridView.DataSource = _apiGateway.Data.SearchInTable(_currentTableName, colName, textBoxSearch.Text);
+                dataGridView.DataSource = await _apiClient.SearchInTableAsync(_currentTableName, colName, textBoxSearch.Text);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка поиска: {ex.Message}");
+                MessageBox.Show($"Помилка пошуку: {ex.Message}");
             }
         }
     }

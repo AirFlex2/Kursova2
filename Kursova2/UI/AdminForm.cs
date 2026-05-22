@@ -2,8 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using Kursova2.Services;
-using Kursova2.Services.Strategies;
+using Kursova2.Network;
 
 namespace Kursova2.UI
 {
@@ -14,24 +13,28 @@ namespace Kursova2.UI
         private Button btnChartGroup;
         private Button btnAmnesty, btnNoAmnesty, btnReturnBook;
 
-        public AdminForm(IApiGateway apiGateway) : base(apiGateway)
+        public AdminForm(ApiClient apiClient) : base(apiClient)
         {
             this.Text = "Бібліотека - Панель Адміністратора";
             dataGridView.ReadOnly = false;
             InitializeAdminComponents();
-            LoadTables(isAdmin: true);
+
+            this.Load += async (s, e) => await LoadTablesAsync(isAdmin: true);
         }
 
         private void InitializeAdminComponents()
         {
-            // Стандартні кнопки керування даними
             btnSave = new Button { Location = new Point(550, 10), Size = new Size(100, 28), Text = "Зберегти" };
-            btnSave.Click += (s, e) => {
+            btnSave.Click += async (s, e) => {
                 if (_currentTable != null)
                 {
-                    _apiGateway.Data.SaveChanges(_currentTableName, _currentTable.GetChanges());
-                    _currentTable.AcceptChanges();
-                    MessageBox.Show("Зміни збережено!");
+                    try
+                    {
+                        await _apiClient.SaveChangesAsync(_currentTableName, _currentTable.GetChanges());
+                        _currentTable.AcceptChanges();
+                        MessageBox.Show("Зміни збережено на сервері!");
+                    }
+                    catch (Exception ex) { MessageBox.Show("Помилка збереження: " + ex.Message); }
                 }
             };
 
@@ -44,18 +47,17 @@ namespace Kursova2.UI
                 }
             };
 
-            // Кнопки аналітики
             btnGroup = new Button { Location = new Point(12, 540), Size = new Size(150, 30), Text = "Групування книг", Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
-            btnGroup.Click += (s, e) => ShowAnalytics(_apiGateway.Analytics.GetBooksGroupedByGenre());
+            btnGroup.Click += async (s, e) => ShowAnalytics(await _apiClient.GetBooksGroupedByGenreAsync());
 
             btnRank = new Button { Location = new Point(170, 540), Size = new Size(180, 30), Text = "Ранг книг за кількістю", Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
-            btnRank.Click += (s, e) => ShowAnalytics(_apiGateway.Analytics.GetBookRankings());
+            btnRank.Click += async (s, e) => ShowAnalytics(await _apiClient.GetBookRankingsAsync());
 
             btnAuthors = new Button { Location = new Point(360, 540), Size = new Size(150, 30), Text = "Книги по авторам", Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
-            btnAuthors.Click += (s, e) => ShowAnalytics(_apiGateway.Analytics.GetBooksByAuthors());
+            btnAuthors.Click += async (s, e) => ShowAnalytics(await _apiClient.GetBooksByAuthorsAsync());
 
             btnFines = new Button { Location = new Point(520, 540), Size = new Size(150, 30), Text = "Підсумок штрафів", Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
-            btnFines.Click += (s, e) => ShowAnalytics(_apiGateway.Analytics.GetFinesSummary());
+            btnFines.Click += async (s, e) => ShowAnalytics(await _apiClient.GetFinesSummaryAsync());
 
             btnChartGroup = new Button
             {
@@ -65,14 +67,15 @@ namespace Kursova2.UI
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.LightSkyBlue
             };
-            btnChartGroup.Click += (s, e) => {
-                DataTable data = _apiGateway.Analytics.GetBooksGroupedByGenre();
-                new ChartForm(data, "Розподіл книг за жанрами", "Genre", "Count").Show();
+            btnChartGroup.Click += async (s, e) => {
+                try
+                {
+                    DataTable data = await _apiClient.GetBooksGroupedByGenreAsync();
+                    new ChartForm(data, "Розподіл книг за жанрами", "Genre", "Count").Show();
+                }
+                catch (Exception ex) { MessageBox.Show("Помилка діаграми: " + ex.Message); }
             };
 
-            // (Логіка штрафів)
-
-            // 1. Увімкнення амністії (Strategy)
             btnAmnesty = new Button
             {
                 Location = new Point(170, 575),
@@ -81,12 +84,11 @@ namespace Kursova2.UI
                 BackColor = Color.LightYellow,
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left
             };
-            btnAmnesty.Click += (s, e) => {
-                _apiGateway.Loan.SetFineStrategy(new AmnestyFineStrategy());
-                MessageBox.Show("Режим амністії активовано! Штрафи тепер будуть 0 грн.");
+            btnAmnesty.Click += async (s, e) => {
+                await _apiClient.SetAmnestyAsync(true);
+                MessageBox.Show("Режим амністії активовано на сервері!");
             };
 
-            // 2. Вимкнення амністії (Strategy)
             btnNoAmnesty = new Button
             {
                 Location = new Point(340, 575),
@@ -95,12 +97,11 @@ namespace Kursova2.UI
                 BackColor = Color.LightCoral,
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left
             };
-            btnNoAmnesty.Click += (s, e) => {
-                _apiGateway.Loan.SetFineStrategy(new StandardFineStrategy());
-                MessageBox.Show("Амністію вимкнено. Повернення до стандартних штрафів.");
+            btnNoAmnesty.Click += async (s, e) => {
+                await _apiClient.SetAmnestyAsync(false);
+                MessageBox.Show("Амністію вимкнено на сервері.");
             };
 
-            // 3. Повернення книги (Microservice Logic)
             btnReturnBook = new Button
             {
                 Location = new Point(510, 575),
@@ -109,16 +110,20 @@ namespace Kursova2.UI
                 BackColor = Color.LightBlue,
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left
             };
-            btnReturnBook.Click += (s, e) => {
+            btnReturnBook.Click += async (s, e) => {
                 if (_currentTableName != "Loan" || dataGridView.SelectedRows.Count == 0)
                 {
                     MessageBox.Show("Оберіть запис у таблиці 'Loan' (Позики) для повернення.");
                     return;
                 }
-                int loanId = Convert.ToInt32(dataGridView.SelectedRows[0].Cells["LoanID"].Value);
-                string result = _apiGateway.Loan.ReturnBook(loanId);
-                MessageBox.Show(result);
-                LoadData("Loan"); // Оновлюємо список позик
+                try
+                {
+                    int loanId = Convert.ToInt32(dataGridView.SelectedRows[0].Cells["LoanID"].Value);
+                    string result = await _apiClient.ReturnBookAsync(loanId);
+                    MessageBox.Show(result);
+                    await LoadDataAsync("Loan");
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
             };
 
             Controls.AddRange(new Control[] {
