@@ -32,7 +32,7 @@ namespace Kursova2.Services.Database
                 if (parameters != null) command.Parameters.AddRange(parameters);
                 var adapter = new SqlDataAdapter(command);
 
-                // КРИТИЧЕСКИ ВАЖНО: загружаем Primary Key из БД для правильного маппинга
+                //загружаем Primary Key из БД для правильного маппинга
                 adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
 
                 var table = new DataTable();
@@ -69,7 +69,6 @@ namespace Kursova2.Services.Database
             {
                 var adapter = new SqlDataAdapter(selectQuery, connection);
 
-                // КРИТИЧЕСКИ ВАЖНО: SqlCommandBuilder не может сгенерировать UPDATE без ключей
                 adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
 
                 var builder = new SqlCommandBuilder(adapter);

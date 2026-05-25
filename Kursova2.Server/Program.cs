@@ -12,11 +12,11 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
 
-// Настраиваем подключение к БД (строка подключения теперь ТОЛЬКО на сервере)
+// Настраиваем подключение к БД
 string connString = "Server=DESKTOP-FV08LVO\\SQLEXPRESS;Database=Library_kurs;Integrated Security=True;TrustServerCertificate=True;";
 builder.Services.AddScoped<IDatabaseHelper>(x => new SqlDatabaseHelper(connString));
 
-// Регистрируем все ваши микросервисы
+// Регистрируем все "микросервисы"
 builder.Services.AddScoped<IAuthService, AuthMicroservice>();
 builder.Services.AddScoped<IDataService, DataMicroservice>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsMicroservice>();

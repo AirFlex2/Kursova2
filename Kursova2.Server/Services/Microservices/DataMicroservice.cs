@@ -50,7 +50,7 @@ namespace Kursova2.Services.Microservices
                 DataSet ds = new DataSet();
                 ds.Tables.Add(schemaTable);
 
-                // ИЗМЕНЕНИЕ ЗДЕСЬ: Отключаем локальную проверку ограничений
+                // Отключаем локальную проверку ограничений
                 // Это позволит загрузить новые строки без ID или с пустыми значениями,
                 // чтобы база данных сама применила к ним свои правила (например, IDENTITY).
                 ds.EnforceConstraints = false;

@@ -49,7 +49,7 @@ namespace Kursova2.UI
 
             chart.Series.Add(series);
 
-            // Прив'язуємо дані з нашого мікросервісу
+            // Прив'язуємо дані з "мікросервісу"
             chart.DataSource = data;
             chart.DataBind();
 

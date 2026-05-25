@@ -11,7 +11,6 @@ namespace Kursova2.Network
     public class ApiClient
     {
         private readonly HttpClient _httpClient;
-        // Порт 5000 стандартный для .NET Core, если у вас другой (например 5173), измените его здесь
         private readonly string _baseUrl = "http://localhost:5189/api/library/";
 
         public ApiClient()
@@ -27,7 +26,6 @@ namespace Kursova2.Network
 
             var table = JsonConvert.DeserializeObject<DataTable>(json);
 
-            // ИЗМЕНЕНИЕ ЗДЕСЬ: Сбрасываем статус всех скачанных строк с "Added" на "Unchanged"
             table?.AcceptChanges();
 
             return table;

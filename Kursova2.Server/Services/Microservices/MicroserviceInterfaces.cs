@@ -27,7 +27,6 @@ namespace Kursova2.Services.Microservices
         List<string> GetAvailableTables(bool isAdmin);
         DataTable GetTableData(string tableName);
         DataTable SearchInTable(string tableName, string columnName, string keyword);
-        // Изменяем сигнатуру здесь:
         void SaveChanges(string tableName, string xmlChanges);
     }
 
